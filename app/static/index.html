@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="zh-CN">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>补货建议与库存检查</title><link rel="stylesheet" href="/static/style.css?v=3"></head>
+<body class="console-page"><div class="ambient-grid" aria-hidden="true"></div>
+<aside><div class="side-label">日常经营</div><div class="nav active">补货建议与库存检查</div><div class="aside-note">看看什么快卖完了<br>什么压在仓库里<br>下一次该进多少货</div><div class="history-title">已做过的分析 <button id="refresh" type="button">刷新</button></div><div id="history"></div><footer>使用虚构商家和商品数据演示<br>你确认后保存建议，不自动下单</footer></aside>
+<main><header><div><div class="eyebrow">经营分析控制台 / 日常补货</div><h1>今天该补什么货？</h1><p>从销售、库存和到货记录中找出下一步动作，所有数量都由程序计算。</p></div><div class="header-tools"><div class="live-panel"><span class="live-dot"></span><span id="live-label">本地分析引擎</span><time id="clock">--:--:--</time></div><span id="mode" class="badge">正在连接</span></div></header>
+<section class="scene-guide"><div><span class="guide-tag">先代入一个采购场景</span><h2>你负责一家超市，今天要决定下一批进什么货。</h2><p>咖啡卖得快，怕断货；马克杯堆得多，怕越买越压货；花茶库存账不一致，怕按错数字下单。下面用这三种商品，帮你把采购清单理清楚。</p></div><ol><li><b>选商品</b><span>确定看哪个仓库、哪段时间</span></li><li><b>看建议</b><span>知道该补、该停、该核实什么</span></li><li><b>你确认</b><span>可改数量，留下原因，再保存</span></li></ol></section>
+<div class="grid"><section class="card form-card"><div class="section-title"><h2>第一步：这次想解决什么？</h2></div><form id="analysis-form">
+<div class="scenarios"><label><input type="radio" name="scenario" value="shortage" checked><span>日常补货<small>别等卖完才进货</small></span></label><label><input type="radio" name="scenario" value="slow"><span>清理积压<small>看看哪些该停购</small></span></label><label><input type="radio" name="scenario" value="promotion"><span>促销备货<small>活动前多备一点</small></span></label></div><p id="scenario-help" class="scenario-help"></p>
+<div class="form-row"><label>哪家商户<select id="tenant" aria-label="哪家商户"></select></label><label>查看哪个仓库<select id="warehouse" aria-label="查看哪个仓库"></select></label></div>
+<label>要看哪些商品（可以多选）</label><div id="products" class="product-list"></div>
+<div class="form-row"><label>从哪天开始看销量<input type="date" id="start" required></label><label>看到哪天为止<input type="date" id="end" required></label></div>
+<p class="hint">默认查看样例中最近三十天的销量，以及截止日当天的库存。</p>
+<details class="parameters"><summary>补货怎么算？需要时调整这些条件</summary><div class="form-row"><label>额外备用几天的货<input type="number" id="safety" min="0" max="90" value="7" required><small>应对销量波动，默认多备七天。</small></label><label>距下次盘点还有几天<input type="number" id="review-days" min="1" max="90" value="7" required><small>默认每周检查并补一次货。</small></label></div></details>
+<label id="factor-label" class="hidden">促销时，预计销量是平时的几倍？<input type="number" id="factor" min="1" max="10" step="0.1" value="1.5" required><small>例如填 1.5，表示预计比平时多卖一半。该假设由你提供。</small></label>
+<label>还有什么想重点了解的？<textarea id="question" rows="2" maxlength="1000">哪些商品快卖完了？哪些暂时不用再进？请列出需要补货和先核实的商品。</textarea></label><p id="question-help" class="hint"></p>
+<button class="primary" id="submit" type="submit" disabled>查看补货建议 <span>→</span></button></form></section>
+<section class="card workflow"><div class="section-title"><h2>第二步：系统正在帮你查什么</h2><span id="task-status">还没有开始</span></div><div class="pipeline"><div data-node="supervisor">◎<span>安排分析</span></div><b>→</b><div data-node="sales_agent">↗<span>看卖了多少</span></div><b>↔</b><div data-node="inventory_agent">▤<span>查还能卖多少</span></div><b>→</b><div data-node="replenishment_agent">◇<span>算要补多少</span></div></div>
+<div class="workflow-caption">销售记录 + 仓库库存 + 已订未到货 + 送货时间</div>
+<div class="agent-step-title"><b>每个角色做了什么</b><span>实时更新，可展开查看细节</span></div><div id="agent-steps" class="agent-steps"></div>
+<div class="business-notes"><div><b>销量告诉你卖得快不快</b><span>每天卖多少，和上一段时间相比是涨还是跌。</span></div><div><b>库存告诉你还能撑多久</b><span>扣掉已被订单占用、损坏不能卖的商品。</span></div><div><b>到货情况决定什么时候补</b><span>已订的货不能重复买，还要考虑供应商要几天送到。</span></div></div>
+<details id="progress-details"><summary>查看分析进度</summary><div id="events" class="events"><div class="empty">选好范围后，点击“查看补货建议”。<br><small>分析完成后，下方会出现每种商品的处理建议。</small></div></div></details><button id="resume" class="secondary hidden">继续上次未完成的分析</button></section></div>
+<section id="report" class="card report hidden"></section>
+<div id="toast" role="alert" class="toast hidden"></div><div class="page-foot">当前使用演示业务数据。建议数量需由采购负责人核实，确认后只保存报告。</div>
+</main><script src="/static/app.js?v=4"></script></body></html>

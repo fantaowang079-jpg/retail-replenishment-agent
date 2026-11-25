@@ -1,0 +1,9 @@
+.venv/
+__pycache__/
+.pytest_cache/
+data/
+config.local.toml
+.env
+*.log
+dist/
+.test-tmp/
